@@ -23,7 +23,7 @@ public class PaginatedMenu extends Menu<PaginatedMenu> {
 
     private ItemStack nextPageItem, previousPageItem;
 
-    private int currentPage = 0; // TODO: for removal?
+    private final int currentPage = 0; // TODO: for removal?
     private int previousPageSlot = -1;
     private int nextPageSlot = -1;
     private int topLeft, bottomRight;
@@ -91,18 +91,22 @@ public class PaginatedMenu extends Menu<PaginatedMenu> {
         int startColumn = topLeft % 9;
         int endColumn = bottomRight % 9;
 
-        // calculate the length of the slots
-        int length = (endRow - startRow + 1) * (endColumn - startColumn + 1);
-        int[] slots = new int[length];
+        // calculate the number of slots
+        int numRows = endRow - startRow + 1;
+        int numColumns = endColumn - startColumn + 1;
+
+        int[] slots = new int[numRows * numColumns];
 
         int index = 0;
         for (int i = startRow; i <= endRow; i++) {
             for (int j = startColumn; j <= endColumn; j++) {
-                slots[index] = (i * 9) + j;
+                slots[index] = i * 9 + j;
                 index++;
             }
         }
+
         this.allowedSlots = slots;
+        System.out.println(Arrays.toString(slots));
         return this;
     }
 
@@ -224,9 +228,6 @@ public class PaginatedMenu extends Menu<PaginatedMenu> {
         }
         if (previousPageItem == null) {
             throw new IllegalStateException("Previous page item cannot be null. Please set it using PaginatedMenu#setPreviousPageItem(ItemStack)");
-        }
-        if (bottomRight - topLeft <= 0) {
-            throw new IllegalStateException("No allowed slots have been set. Please set them using PaginatedMenu#setAllowedSlots(int, int)");
         }
         if (this.allowedSlots == null || this.allowedSlots.length == 0) {
             throw new IllegalStateException("No allowed slots have been set. Please set them using PaginatedMenu#setAllowedSlots(int, int), or PaginatedMenu#setExplicitAllowedSlots(int...)");
