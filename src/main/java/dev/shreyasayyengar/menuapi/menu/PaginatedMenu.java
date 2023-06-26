@@ -8,6 +8,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A paginated menu is a menu that has a set amount of slots that can be filled with items. If there are more items than
@@ -106,7 +107,6 @@ public class PaginatedMenu extends Menu<PaginatedMenu> {
         }
 
         this.allowedSlots = slots;
-        System.out.println(Arrays.toString(slots));
         return this;
     }
 
@@ -223,6 +223,8 @@ public class PaginatedMenu extends Menu<PaginatedMenu> {
     }
 
     protected void openMenu(Player player, int pageNumber) {
+        AtomicInteger atomicPageNumber = new AtomicInteger(pageNumber);
+
         if (nextPageItem == null) {
             throw new IllegalStateException("Next page item cannot be null. Please set it using PaginatedMenu#setNextPageItem(ItemStack)");
         }
@@ -232,6 +234,8 @@ public class PaginatedMenu extends Menu<PaginatedMenu> {
         if (this.allowedSlots == null || this.allowedSlots.length == 0) {
             throw new IllegalStateException("No allowed slots have been set. Please set them using PaginatedMenu#setAllowedSlots(int, int), or PaginatedMenu#setExplicitAllowedSlots(int...)");
         }
+
+        if (atomicPageNumber.get() <= 0) atomicPageNumber.set(1);
 
         // Inventory is validated;
 
@@ -244,9 +248,13 @@ public class PaginatedMenu extends Menu<PaginatedMenu> {
 
         int itemsPerPage = this.allowedSlots.length;
         int pagesNeeded = (int) Math.ceil((double) this.paginatedItems.size() / itemsPerPage);
-        List<MenuItem> itemsForPage = this.paginatedItems.stream().skip((long) this.allowedSlots.length * (pageNumber - 1)).limit(this.allowedSlots.length).toList();
 
-        Inventory inventory = Bukkit.createInventory(null, this.size, (this.usePageIndicator ? this.pageIndicator.replace("{current_page}", String.valueOf(pageNumber)).replace("{max_page}", String.valueOf(pagesNeeded)) : this.title));
+        List<MenuItem> itemsForPage = this.paginatedItems.stream()
+                .skip((long) this.allowedSlots.length * (atomicPageNumber.get() - 1))
+                .limit(this.allowedSlots.length)
+                .toList();
+
+        Inventory inventory = Bukkit.createInventory(null, this.size, (this.usePageIndicator ? this.pageIndicator.replace("{current_page}", String.valueOf(atomicPageNumber)).replace("{max_page}", String.valueOf(pagesNeeded)) : this.title));
 
         // Iterate over the items for the current page
         for (int i = 0; i < itemsForPage.size(); i++) {
@@ -260,18 +268,18 @@ public class PaginatedMenu extends Menu<PaginatedMenu> {
         }
 
         this.fixedItems.put(this.nextPageSlot, new MenuItem(this.nextPageItem).onClick((whoClicked, itemStack, clickType, event) -> {
-            if (pageNumber == pagesNeeded) {
+            if (atomicPageNumber.get() == pagesNeeded) {
                 whoClicked.sendMessage(this.noAdditionalPages);
                 return;
             }
-            MenuManager.getManagerInstance().openPaginatedMenu(player, this, pageNumber + 1);
+            MenuManager.getManagerInstance().openPaginatedMenu(player, this, atomicPageNumber.get() + 1);
         }));
         this.fixedItems.put(this.previousPageSlot, new MenuItem(this.previousPageItem).onClick((whoClicked, itemStack, clickType, event) -> {
-            if (pageNumber == 1) {
+            if (atomicPageNumber.get() == 1) {
                 whoClicked.sendMessage(this.noPreviousPages);
                 return;
             }
-            MenuManager.getManagerInstance().openPaginatedMenu(player, this, pageNumber - 1);
+            MenuManager.getManagerInstance().openPaginatedMenu(player, this, atomicPageNumber.get() - 1);
         }));
 
         // apply fixed items
