@@ -3,6 +3,7 @@ package dev.shreyasayyengar.menuapi.menu;
 import dev.shreyasayyengar.menuapi.action.PaginatedMenuCloseAction;
 import dev.shreyasayyengar.menuapi.action.StandardMenuCloseAction;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Optional;
 
@@ -16,7 +17,7 @@ import java.util.Optional;
  * @see StandardMenu
  */
 @SuppressWarnings("unchecked") // i know what im doing (or at least i think i do)
-public abstract class Menu<MenuType extends Menu<MenuType>> {
+public abstract class Menu<MenuType extends Menu<MenuType>> implements Iterable<ItemStack> {
 
     protected String title;
     protected int size;

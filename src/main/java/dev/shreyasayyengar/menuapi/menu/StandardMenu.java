@@ -5,8 +5,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 
@@ -70,5 +72,10 @@ public class StandardMenu extends Menu<StandardMenu> {
     @Override
     public Optional<MenuItem> getItem(int slot) {
         return Optional.ofNullable(this.items.get(slot));
+    }
+
+    @Override
+    public Iterator<ItemStack> iterator() {
+        return this.items.values().stream().map(MenuItem::getItemStack).iterator();
     }
 }

@@ -314,6 +314,11 @@ public class PaginatedMenu extends Menu<PaginatedMenu> {
         return Optional.ofNullable(this.allItems.get(slot));
     }
 
+    @Override
+    public Iterator<ItemStack> iterator() {
+        return this.allItems.values().stream().map(MenuItem::getItemStack).iterator();
+    }
+
     // --------- Getters ---------
 
     public String getNoAdditionalPages() {
@@ -331,6 +336,8 @@ public class PaginatedMenu extends Menu<PaginatedMenu> {
     public int getCurrentPage() {
         return currentPage;
     }
+
+
 }
 
 /* TODO:
