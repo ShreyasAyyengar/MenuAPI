@@ -51,6 +51,15 @@ public class StandardMenu extends Menu<StandardMenu> {
         player.openInventory(inventory);
     }
 
+    protected void openMenu(Player... players) {
+        Inventory inventory = Bukkit.createInventory(null, this.size, this.title);
+        this.items.forEach((slot, item) -> inventory.setItem(slot, item.getItemStack()));
+
+        for (Player player : players) {
+            player.openInventory(inventory);
+        }
+    }
+
     /**
      * Handles the closing of the menu.
      *
