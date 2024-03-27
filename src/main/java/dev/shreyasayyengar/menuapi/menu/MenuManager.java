@@ -51,6 +51,18 @@ public class MenuManager implements Listener {
         this.openMenus.put(player.getUniqueId(), menu);
     }
 
+    public void openStandardMenu(StandardMenu menu, Player... players) {
+        if (menu.getSize() == 0) {
+            throw new IllegalStateException("Menu size must be set or cannot be 0");
+        }
+
+        menu.openMenu(players);
+
+        for (Player player : players) {
+            this.openMenus.put(player.getUniqueId(), menu);
+        }
+    }
+
     /**
      * Open an instance of {@link PaginatedMenu} for a player
      *
