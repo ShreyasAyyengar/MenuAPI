@@ -98,9 +98,27 @@ public class MenuManager implements Listener {
         Player player = (Player) event.getWhoClicked();
         Menu<?> menu = this.openMenus.get(player.getUniqueId());
 
-        if (menu != null) {
-            event.setCancelled(true);
-            menu.getItem(event.getRawSlot()).ifPresent(item -> item.getClickAction().onClick(player, event.getCurrentItem(), event.getClick(), event));
+        if (menu == null) return; // no open menu for player
+
+        if (menu.getOverriddenInventoryClickAction() != null) {
+            menu.getOverriddenInventoryClickAction().performInventoryClickAction(event);
+
+            if (menu.handlesMenuItems()) {
+                menu.getItem(event.getRawSlot()).ifPresent(item -> {
+                    if (item.getClickAction() != null) {
+                        item.getClickAction().onClick(player, event.getCurrentItem(), event.getClick(), event);
+                    }
+                });
+            }
+
+            return;
         }
+
+        if (menu.cancelClicksEventByDefault) event.setCancelled(true);
+        menu.getItem(event.getRawSlot()).ifPresent(item -> {
+            if (item.getClickAction() != null) {
+                item.getClickAction().onClick(player, event.getCurrentItem(), event.getClick(), event);
+            }
+        });
     }
 }

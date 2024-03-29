@@ -2,15 +2,13 @@ package dev.shreyasayyengar.menuapi.menu;
 
 import dev.shreyasayyengar.menuapi.action.StandardMenuCloseAction;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * A standard menu is a menu that is not paginated and has a fixed size. It is the most basic type of menu for
@@ -18,8 +16,17 @@ import java.util.Optional;
  */
 public class StandardMenu extends Menu<StandardMenu> {
 
+    private final Inventory bukkitInventory;
     private final Map<Integer, MenuItem> items = new HashMap<>();
+    private final List<HumanEntity> viewers = new ArrayList<>();
+
     private StandardMenuCloseAction closeAction;
+
+    public StandardMenu(String title, int size) {
+        super(title, size);
+
+        this.bukkitInventory = Bukkit.createInventory(null, size, title);
+    }
 
     /**
      * Adds a MenuItem to the menu at the given slot.
@@ -29,7 +36,25 @@ public class StandardMenu extends Menu<StandardMenu> {
      * @return the StandardMenu instance.
      */
     public StandardMenu withItem(int slot, MenuItem item) {
+        // if slot already contains item, replace it:
+        if (this.items.containsKey(slot)) {
+            removeItem(slot);
+        }
+
         this.items.put(slot, item);
+        this.items.forEach((itemSlot, itemMenuItem) -> bukkitInventory.setItem(slot, item.getItemStack()));
+        return this;
+    }
+
+    public StandardMenu withItems(Map<Integer, MenuItem> items) {
+        this.items.putAll(items);
+        this.items.forEach((itemSlot, itemMenuItem) -> bukkitInventory.setItem(itemSlot, itemMenuItem.getItemStack()));
+        return this;
+    }
+
+    public StandardMenu removeItem(int slot) {
+        this.items.remove(slot);
+        bukkitInventory.setItem(slot, null);
         return this;
     }
 
@@ -45,18 +70,15 @@ public class StandardMenu extends Menu<StandardMenu> {
     }
 
     protected void openMenu(Player player) {
-        Inventory inventory = Bukkit.createInventory(null, this.size, this.title);
-        this.items.forEach((slot, item) -> inventory.setItem(slot, item.getItemStack()));
-
-        player.openInventory(inventory);
+        this.items.forEach((slot, item) -> bukkitInventory.setItem(slot, item.getItemStack()));
+        player.openInventory(bukkitInventory);
     }
 
     protected void openMenu(Player... players) {
-        Inventory inventory = Bukkit.createInventory(null, this.size, this.title);
-        this.items.forEach((slot, item) -> inventory.setItem(slot, item.getItemStack()));
+        this.items.forEach((slot, item) -> bukkitInventory.setItem(slot, item.getItemStack()));
 
         for (Player player : players) {
-            player.openInventory(inventory);
+            player.openInventory(bukkitInventory);
         }
     }
 

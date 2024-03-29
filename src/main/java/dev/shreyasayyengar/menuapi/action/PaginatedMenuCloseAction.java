@@ -16,9 +16,10 @@ public interface PaginatedMenuCloseAction {
 
     /**
      * Performs an action when a paginated menu is closed.
-     * @param whoClosed The {@link org.bukkit.entity.HumanEntity} that closed the menu.
-     * @param inventory The {@link Inventory} that was closed.
-     * @param pageNumber The page number of the menu that was closed.
+     *
+     * @param whoClosed           The {@link org.bukkit.entity.HumanEntity} that closed the menu.
+     * @param inventory           The {@link Inventory} that was closed.
+     * @param pageNumber          The page number of the menu that was closed.
      * @param inventoryCloseEvent The instance of the {@link InventoryCloseEvent} that was fired in association with the close.
      */
     void performCloseAction(Player whoClosed, Inventory inventory, int pageNumber, InventoryCloseEvent inventoryCloseEvent);

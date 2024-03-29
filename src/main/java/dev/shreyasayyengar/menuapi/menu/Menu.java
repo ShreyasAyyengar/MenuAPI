@@ -1,7 +1,9 @@
 package dev.shreyasayyengar.menuapi.menu;
 
+import dev.shreyasayyengar.menuapi.action.OverriddenInventoryClickAction;
 import dev.shreyasayyengar.menuapi.action.PaginatedMenuCloseAction;
 import dev.shreyasayyengar.menuapi.action.StandardMenuCloseAction;
+import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -17,10 +19,17 @@ import java.util.Optional;
  * @see StandardMenu
  */
 @SuppressWarnings("unchecked") // i know what im doing (or at least i think i do)
-public abstract class Menu<MenuType extends Menu<MenuType>> implements Iterable<ItemStack> {
+public abstract class Menu<MenuType extends Menu<MenuType>> implements Iterable<ItemStack>, Listener {
 
     protected String title;
     protected int size;
+    protected boolean cancelClicksEventByDefault, handleMenuItems;
+    protected OverriddenInventoryClickAction overriddenInventoryClickAction;
+
+    public Menu(String title, int size) {
+        this.title = title;
+        this.size = size;
+    }
 
     /**
      * Sets the title of the menu.
@@ -72,6 +81,17 @@ public abstract class Menu<MenuType extends Menu<MenuType>> implements Iterable<
         return (MenuType) this;
     }
 
+    public MenuType cancelClickEventByDefault(boolean cancelByDefault) {
+        this.cancelClicksEventByDefault = cancelByDefault;
+        return (MenuType) this;
+    }
+
+    public MenuType overrideInventoryClickAction(OverriddenInventoryClickAction action, boolean handleMenuItems) {
+        this.overriddenInventoryClickAction = action;
+        this.handleMenuItems = handleMenuItems;
+        return (MenuType) this;
+    }
+
     // ---------- Functionality ---------- //
 
     /**
@@ -102,5 +122,13 @@ public abstract class Menu<MenuType extends Menu<MenuType>> implements Iterable<
 
     public int getSize() {
         return size;
+    }
+
+    public OverriddenInventoryClickAction getOverriddenInventoryClickAction() {
+        return overriddenInventoryClickAction;
+    }
+
+    public boolean handlesMenuItems() {
+        return handleMenuItems;
     }
 }

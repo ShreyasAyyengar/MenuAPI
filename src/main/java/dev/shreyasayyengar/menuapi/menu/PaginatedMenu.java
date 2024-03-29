@@ -38,6 +38,10 @@ public class PaginatedMenu extends Menu<PaginatedMenu> {
 
     private PaginatedMenuCloseAction closeAction;
 
+    public PaginatedMenu(String title, int size) {
+        super(title, size);
+    }
+
     /**
      * Adds specified MenuItems to this menu
      *
