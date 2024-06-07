@@ -1,12 +1,21 @@
 package dev.shreyasayyengar.menuapi.menu;
 
+import com.google.common.base.Preconditions;
 import dev.shreyasayyengar.menuapi.action.MenuItemClickAction;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.profile.PlayerProfile;
+import org.bukkit.profile.PlayerTextures;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Represents an item in a menu. This class is used to create items for any instances of {@link Menu}.
@@ -114,6 +123,47 @@ public class MenuItem {
     public MenuItem withLore(List<String> lore) {
         this.meta.setLore(lore);
         updateItemMeta();
+        return this;
+    }
+
+    /**
+     * Sets the texture of this MenuItem to a custom skull texture. Calls {@link #updateItemMeta()}.
+     *
+     * @param textureURL The URL of the texture for this profile skin. Sites like <a href="https://minecraft-heads.com/">Minecraft Heads</a> can be used to find textures.
+     * @return This MenuItem.
+     */
+    public MenuItem withSkullTexture(String textureURL) {
+        Preconditions.checkState(this.item.getType() == Material.PLAYER_HEAD, "ItemStack Material must be a PLAYER_HEAD to set a skull texture.");
+
+        PlayerProfile skullProfile = Bukkit.createPlayerProfile(UUID.randomUUID());
+        PlayerTextures profileTextures = skullProfile.getTextures();
+        try {
+            profileTextures.setSkin(new URL("http://textures.minecraft.net/texture/" + textureURL));
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+        skullProfile.setTextures(profileTextures);
+
+        SkullMeta modifiedMeta = (SkullMeta) meta;
+        modifiedMeta.setOwnerProfile(skullProfile);
+        item.setItemMeta(modifiedMeta);
+
+        return this;
+    }
+
+    /**
+     * Sets the skull owner of this MenuItem. Calls {@link #updateItemMeta()}.
+     *
+     * @param player The OfflinePlayer to set as the skull owner for this MenuItem.
+     * @return This MenuItem.
+     */
+    public MenuItem withSkullOwner(OfflinePlayer player) {
+        Preconditions.checkState(this.item.getType() == Material.PLAYER_HEAD, "ItemStack Material must be a PLAYER_HEAD to set a skull owner.");
+
+        SkullMeta modifiedMeta = (SkullMeta) meta;
+        modifiedMeta.setOwningPlayer(player);
+        item.setItemMeta(modifiedMeta);
+
         return this;
     }
 
