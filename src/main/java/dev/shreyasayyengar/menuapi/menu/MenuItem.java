@@ -129,6 +129,30 @@ public class MenuItem {
     }
 
     /**
+     * Adds new lore to the existing lore of this MenuItem. Calls {@link #updateItemMeta()}.
+     *
+     * @param lore The lore as a List of strings to add to this MenuItem.
+     * @return This MenuItem.
+     */
+    public MenuItem addLore(List<String> lore) {
+        List<String> currentLores = this.meta.getLore();
+        currentLores.addAll(lore);
+        this.meta.setLore(currentLores);
+        updateItemMeta();
+        return this;
+    }
+
+    /**
+     * Adds new lore to the existing lore of this MenuItem. Calls {@link #updateItemMeta()}.
+     *
+     * @param lore The lore to add to this MenuItem.
+     * @return This MenuItem.
+     */
+    public MenuItem addLore(String... lore) {
+        return addLore(Arrays.asList(lore));
+    }
+
+    /**
      * Sets the texture of this MenuItem to a custom skull texture. Calls {@link #updateItemMeta()}.
      *
      * @param textureURL The URL of the texture for this profile skin. Sites like <a href="https://minecraft-heads.com/">Minecraft Heads</a> can be used to find textures.
@@ -174,9 +198,14 @@ public class MenuItem {
      *
      * @return This MenuItem.
      */
-    public MenuItem withEnchantmentGlint() {
-        this.meta.addEnchant(Enchantment.DURABILITY, 1, true);
-        this.meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+    public MenuItem withEnchantmentGlint(boolean glint) {
+        if (glint) {
+            this.meta.addEnchant(Enchantment.DURABILITY, 1, true);
+            this.meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        } else {
+            this.meta.removeEnchant(Enchantment.DURABILITY);
+            this.meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
+        }
         updateItemMeta();
         return this;
     }
