@@ -23,7 +23,7 @@ public abstract class Menu<MenuType extends Menu<MenuType>> implements Iterable<
 
     protected String title;
     protected int size;
-    protected boolean cancelClicksEventByDefault, handleMenuItems;
+    protected boolean cancelClickEventsByDefault = true, handleMenuItems;
     protected OverriddenInventoryClickAction overriddenInventoryClickAction;
 
     public Menu(String title, int size) {
@@ -81,8 +81,8 @@ public abstract class Menu<MenuType extends Menu<MenuType>> implements Iterable<
         return (MenuType) this;
     }
 
-    public MenuType cancelClickEventByDefault(boolean cancelByDefault) {
-        this.cancelClicksEventByDefault = cancelByDefault;
+    public MenuType cancelClickEventsByDefault(boolean cancelByDefault) {
+        this.cancelClickEventsByDefault = cancelByDefault;
         return (MenuType) this;
     }
 

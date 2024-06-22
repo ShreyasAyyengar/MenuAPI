@@ -114,7 +114,7 @@ public class MenuManager implements Listener {
             return;
         }
 
-        if (menu.cancelClicksEventByDefault) event.setCancelled(true);
+        if (menu.cancelClickEventsByDefault) event.setCancelled(true);
         menu.getItem(event.getRawSlot()).ifPresent(item -> {
             if (item.getClickAction() != null) {
                 item.getClickAction().onClick(player, event.getCurrentItem(), event.getClick(), event);
