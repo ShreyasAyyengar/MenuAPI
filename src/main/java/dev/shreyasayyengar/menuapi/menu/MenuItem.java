@@ -153,6 +153,20 @@ public class MenuItem {
     }
 
     /**
+     * Deletes a line of lore from the existing lore of this MenuItem. Calls {@link #updateItemMeta()}.
+     *
+     * @param index The index of the lore line to delete.
+     * @return This MenuItem.
+     */
+    public MenuItem deleteLore(int index) {
+        List<String> currentLores = this.meta.getLore();
+        currentLores.remove(index);
+        this.meta.setLore(currentLores);
+        updateItemMeta();
+        return this;
+    }
+
+    /**
      * Sets the texture of this MenuItem to a custom skull texture. Calls {@link #updateItemMeta()}.
      *
      * @param textureURL The URL of the texture for this profile skin. Sites like <a href="https://minecraft-heads.com/">Minecraft Heads</a> can be used to find textures.
