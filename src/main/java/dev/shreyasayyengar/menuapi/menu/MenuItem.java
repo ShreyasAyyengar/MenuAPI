@@ -20,20 +20,38 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Represents an item in a menu. This class is used to create items for any instances of {@link Menu}.
- * They are constructed using the builder pattern.
+ * The MenuItem class wraps functionality around a Bukkit {@link ItemStack}, as an item in a menu with customizable properties and actions.
+ * It provides methods to modify the stack’s metadata, such as name, lore, and custom textures,
+ * and allows setting a click action that defines the behavior when the item is clicked.
+ *
+ * <p>This class supports setting and updating various attributes of the item, such as:
+ * <ul>
+ *     <li>Name</li>
+ *     <li>Lore</li>
+ *     <li>Skull texture for PLAYER_HEAD items</li>
+ *     <li>Enchantment glint effect</li>
+ * </ul>
+ *
+ * <p>Additionally, the class allows developers to define custom actions through the {@link MenuItemClickAction} interface.
+ *
+ * <p>Example usage:
+ * <pre>
+ *     MenuItem menuItem = new MenuItem(Material.DIAMOND_SWORD)
+ *         .setName("Excalibur")
+ *         .setLore("Legendary Sword")
+ *         .setEnchantmentGlint(true)
+ *         .onClick((whoClicked, itemStack, clickType, event) -> {
+ *             // custom click action
+ *         });
+ * </pre>
  */
+@SuppressWarnings("unused")
 public class MenuItem {
 
     private ItemStack item;
     private ItemMeta meta;
     private MenuItemClickAction clickAction;
-
-    /**
-     * Constructs a blank MenuItem with no ItemStack associated.
-     */
-    public MenuItem() {
-    }
+    private boolean closeWhenClicked;
 
     /**
      * Constructs a MenuItem with the given ItemStack.
@@ -41,12 +59,14 @@ public class MenuItem {
      * @param stack The ItemStack for this MenuItem.
      */
     public MenuItem(ItemStack stack) {
+        Preconditions.checkState(stack.getType() != Material.AIR, "ItemStack type must not be Material.AIR");
+
         this.item = stack;
         this.meta = stack.getItemMeta();
     }
 
     /**
-     * Constructs a MenuItem with the given Material. The ItemStack will default to a quantity of 1.
+     * Constructs a MenuItem with the given Material. The ItemStack will default to an amount of 1.
      *
      * @param material The Material for this MenuItem.
      */
@@ -77,7 +97,9 @@ public class MenuItem {
      * @param item The ItemStack for this MenuItem.
      * @return This MenuItem.
      */
-    public MenuItem withItemStack(ItemStack item) {
+    public MenuItem setItemStack(ItemStack item) {
+        Preconditions.checkState(item.getType() != Material.AIR, "ItemStack type must not be Material.AIR");
+
         this.item = item;
         this.meta = item.getItemMeta();
         return this;
@@ -89,47 +111,57 @@ public class MenuItem {
      * @param amount The amount of this MenuItem.
      * @return This MenuItem.
      */
-    public MenuItem withAmount(int amount) {
+    public MenuItem setAmount(int amount) {
         this.item.setAmount(amount);
         return this;
     }
 
     /**
-     * Sets the name of this MenuItem. Calls {@link #updateItemMeta()}.
+     * Sets the name of this MenuItem.
      *
      * @param name The name for this MenuItem.
      * @return This MenuItem.
      */
-    public MenuItem withName(String name) {
+    public MenuItem setName(String name) {
         this.meta.setDisplayName(name);
         updateItemMeta();
         return this;
     }
 
     /**
-     * Sets the lore of this MenuItem. Calls {@link #updateItemMeta()}.
+     * Sets the lore of this MenuItem.
      *
      * @param lore The lore for this MenuItem.
      * @return This MenuItem.
      */
-    public MenuItem withLore(String... lore) {
-        return this.withLore(Arrays.asList(lore));
+    public MenuItem setLore(String... lore) {
+        return this.setLore(Arrays.asList(lore));
     }
 
     /**
-     * Sets the lore of this MenuItem. Calls {@link #updateItemMeta()}.
+     * Sets the lore of this MenuItem.
      *
      * @param lore The lore as a List of strings for this MenuItem.
      * @return This MenuItem.
      */
-    public MenuItem withLore(List<String> lore) {
+    public MenuItem setLore(List<String> lore) {
         this.meta.setLore(lore);
         updateItemMeta();
         return this;
     }
 
     /**
-     * Adds new lore to the existing lore of this MenuItem. Calls {@link #updateItemMeta()}.
+     * Adds new lore to the existing lore of this MenuItem.
+     *
+     * @param lore The lore to add to this MenuItem.
+     * @return This MenuItem.
+     */
+    public MenuItem addLore(String... lore) {
+        return addLore(Arrays.asList(lore));
+    }
+
+    /**
+     * Adds new lore to the existing lore of this MenuItem.
      *
      * @param lore The lore as a List of strings to add to this MenuItem.
      * @return This MenuItem.
@@ -143,17 +175,7 @@ public class MenuItem {
     }
 
     /**
-     * Adds new lore to the existing lore of this MenuItem. Calls {@link #updateItemMeta()}.
-     *
-     * @param lore The lore to add to this MenuItem.
-     * @return This MenuItem.
-     */
-    public MenuItem addLore(String... lore) {
-        return addLore(Arrays.asList(lore));
-    }
-
-    /**
-     * Deletes a line of lore from the existing lore of this MenuItem. Calls {@link #updateItemMeta()}.
+     * Deletes a line of lore from the existing lore of this MenuItem.
      *
      * @param index The index of the lore line to delete.
      * @return This MenuItem.
@@ -167,12 +189,12 @@ public class MenuItem {
     }
 
     /**
-     * Sets the texture of this MenuItem to a custom skull texture. Calls {@link #updateItemMeta()}.
+     * Sets the texture of this MenuItem to a custom skull texture.
      *
      * @param textureURL The URL of the texture for this profile skin. Sites like <a href="https://minecraft-heads.com/">Minecraft Heads</a> can be used to find textures.
      * @return This MenuItem.
      */
-    public MenuItem withSkullTexture(String textureURL) {
+    public MenuItem setSkullTexture(String textureURL) {
         Preconditions.checkState(this.item.getType() == Material.PLAYER_HEAD, "ItemStack Material must be a PLAYER_HEAD to set a skull texture.");
 
         PlayerProfile skullProfile = Bukkit.createPlayerProfile(UUID.randomUUID());
@@ -192,12 +214,12 @@ public class MenuItem {
     }
 
     /**
-     * Sets the skull owner of this MenuItem. Calls {@link #updateItemMeta()}.
+     * Sets the skull owner of this MenuItem.
      *
      * @param player The OfflinePlayer to set as the skull owner for this MenuItem.
      * @return This MenuItem.
      */
-    public MenuItem withSkullOwner(OfflinePlayer player) {
+    public MenuItem setSkullOwner(OfflinePlayer player) {
         Preconditions.checkState(this.item.getType() == Material.PLAYER_HEAD, "ItemStack Material must be a PLAYER_HEAD to set a skull owner.");
 
         SkullMeta modifiedMeta = (SkullMeta) meta;
@@ -208,11 +230,11 @@ public class MenuItem {
     }
 
     /**
-     * Adds an enchantment glint texture to this MenuItem. Calls {@link #updateItemMeta()}.
+     * Adds an enchantment glint texture to this MenuItem.
      *
      * @return This MenuItem.
      */
-    public MenuItem withEnchantmentGlint(boolean glint) {
+    public MenuItem setEnchantmentGlint(boolean glint) {
         if (glint) {
             this.meta.addEnchant(Enchantment.DURABILITY, 1, true);
             this.meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
@@ -225,13 +247,58 @@ public class MenuItem {
     }
 
     /**
-     * Sets the ItemMeta for this MenuItem. Calls {@link #updateItemMeta()}.
+     * Sets whether the Menu containing this MenuItem should close when the item is clicked.
+     * When set to true, the Menu will automatically close upon clicking this MenuItem,
+     * while any additional actions defined in the {@link MenuItemClickAction} will still be executed.
+     * <p>
+     * Default value: false
+     * <p>
+     * Example usage:
+     * <pre>
+     *     MenuItem closeMenuItem = new MenuItem(Material.BARRIER)
+     *             .setName("Close Menu!")
+     *             .setEnchantmentGlint(true)
+     *             .closeWhenClicked(true);
+     * </pre>
+     * This method eliminates the need to manually close the Menu from within the click action,
+     * avoiding the potential issues associated with unsafe calls:
+     * <pre>
+     *     MenuItem closeMenuItem = new MenuItem(Material.BARRIER)
+     *         .setName("Close Menu!")
+     *         .setEnchantmentGlint(true)
+     *         .onClick((whoClicked, itemStack, clickType, event) -> {
+     *             whoClicked.sendMessage("You closed the menu!");
+     *             whoClicked.closeInventory(); <b>// UNSAFE</b>
+     *         });
+     * </pre>
+     * <b>Note:</b> Bukkit explicitly states that the following methods should never be invoked by
+     * an EventHandler for InventoryClickEvent using the HumanEntity or InventoryView associated
+     * with the event:
+     * <ul>
+     *     <li>HumanEntity.closeInventory()</li>
+     *     <li>HumanEntity.openInventory(Inventory)</li>
+     *     <li>HumanEntity.openWorkbench(Location, boolean)</li>
+     *     <li>HumanEntity.openEnchanting(Location, boolean)</li>
+     *     <li>InventoryView.close()</li>
+     * </ul>
+     * The MenuAPI handles the closing of the Menu in a safe manner using Bukkit's Scheduler.
+     *
+     * @param close Whether the Menu should close when this MenuItem is clicked.
+     * @return This MenuItem.
+     */
+    public MenuItem closeWhenClicked(boolean close) {
+        this.closeWhenClicked = close;
+        return this;
+    }
+
+    /**
+     * Sets the ItemMeta for this MenuItem.
      * External developers may choose to use this method to set custom ItemMeta directly.
      *
      * @param meta The ItemMeta for this MenuItem.
      * @return This MenuItem.
      */
-    public MenuItem withItemMeta(ItemMeta meta) {
+    public MenuItem setItemMeta(ItemMeta meta) {
         this.meta = meta;
         updateItemMeta();
         return this;
@@ -258,7 +325,12 @@ public class MenuItem {
         return meta;
     }
 
-    public MenuItemClickAction getClickAction() {
+    protected MenuItemClickAction getClickAction() {
         return clickAction;
     }
+
+    protected boolean shouldCloseIfClicked() {
+        return closeWhenClicked;
+    }
 }
+// TODO - add support for MenuItems within player inventories.

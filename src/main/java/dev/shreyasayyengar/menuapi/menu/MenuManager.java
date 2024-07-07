@@ -15,6 +15,7 @@ import java.util.UUID;
 public class MenuManager implements Listener {
 
     private static MenuManager managerInstance;
+    private final JavaPlugin providingPlugin;
     private final Map<UUID, Menu<?>> openMenus = new HashMap<>();
 
     /**
@@ -33,54 +34,15 @@ public class MenuManager implements Listener {
      */
     public MenuManager(JavaPlugin providingPlugin) {
         MenuManager.managerInstance = this;
-        Bukkit.getServer().getPluginManager().registerEvents(this, providingPlugin);
-    }
-
-    /**
-     * Open an instance of {@link StandardMenu} for a player
-     *
-     * @param player The player to open the menu for
-     * @param menu   The menu to open
-     */
-    public void openStandardMenu(Player player, StandardMenu menu) {
-        if (menu.getSize() == 0) {
-            throw new IllegalStateException("Menu size must be set or cannot be 0");
-        }
-
-        menu.openMenu(player);
-        this.openMenus.put(player.getUniqueId(), menu);
-    }
-
-    public void openStandardMenu(StandardMenu menu, Player... players) {
-        if (menu.getSize() == 0) {
-            throw new IllegalStateException("Menu size must be set or cannot be 0");
-        }
-
-        menu.openMenu(players);
-
-        for (Player player : players) {
-            this.openMenus.put(player.getUniqueId(), menu);
-        }
-    }
-
-    /**
-     * Open an instance of {@link PaginatedMenu} for a player
-     *
-     * @param player       The player to open the menu for
-     * @param menu         The menu to open
-     * @param startingPage The page to start the menu on
-     */
-    public void openPaginatedMenu(Player player, PaginatedMenu menu, int startingPage) {
-        if (menu.getSize() == 0) {
-            throw new IllegalStateException("Menu size must be set or cannot be 0");
-        }
-
-        menu.openMenu(player, startingPage);
-        this.openMenus.put(player.getUniqueId(), menu);
+        Bukkit.getServer().getPluginManager().registerEvents(this, this.providingPlugin = providingPlugin);
     }
 
     public Map<UUID, Menu<?>> getOpenMenus() {
         return openMenus;
+    }
+
+    public JavaPlugin getProvidingPlugin() {
+        return providingPlugin;
     }
 
     // ----------------------------------------------------------------------------------------------------- //
@@ -104,20 +66,24 @@ public class MenuManager implements Listener {
             menu.getOverriddenInventoryClickAction().performInventoryClickAction(event);
 
             if (menu.handlesMenuItems()) {
-                menu.getItem(event.getRawSlot()).ifPresent(item -> {
-                    if (item.getClickAction() != null) {
-                        item.getClickAction().onClick(player, event.getCurrentItem(), event.getClick(), event);
-                    }
-                });
+                handleClick(event, player, menu);
             }
-
             return;
         }
 
         if (menu.cancelClickEventsByDefault) event.setCancelled(true);
+        handleClick(event, player, menu);
+    }
+
+    // handles a MenuItem click if one is present/needed/allowed
+    private void handleClick(InventoryClickEvent event, Player player, Menu<?> menu) {
         menu.getItem(event.getRawSlot()).ifPresent(item -> {
             if (item.getClickAction() != null) {
                 item.getClickAction().onClick(player, event.getCurrentItem(), event.getClick(), event);
+            }
+
+            if (item.shouldCloseIfClicked()) {
+                Bukkit.getScheduler().runTaskLater(providingPlugin, player::closeInventory, 1L);
             }
         });
     }
