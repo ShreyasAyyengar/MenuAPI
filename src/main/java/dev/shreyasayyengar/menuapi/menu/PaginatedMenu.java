@@ -14,7 +14,13 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Represents a paginated menu that dynamically manages multiple pages of items.
@@ -311,7 +317,7 @@ public class PaginatedMenu extends Menu<PaginatedMenu> {
         baseBukkitInventory.clear();
 
         updateFixedItems();
-        updatePaginatedItems(player);
+        updatePaginatedItems();
 
         this.finalDisplayItems.forEach((integer, menuItem) -> baseBukkitInventory.setItem(integer, menuItem.getItemStack()));
     }
@@ -332,11 +338,7 @@ public class PaginatedMenu extends Menu<PaginatedMenu> {
         this.finalDisplayItems.putAll(this.fixedItems);
     }
 
-    private void updatePaginatedItems(Player player) {
-        for (int slot : allowedSlots) {
-            baseBukkitInventory.setItem(slot, null);
-        }
-
+    private void updatePaginatedItems() {
         List<MenuItem> itemsOnPage = getItemsForPage(currentPageNumber);
 
         // apply paginated items for the current page
@@ -348,15 +350,14 @@ public class PaginatedMenu extends Menu<PaginatedMenu> {
             // Set the item in the inventory
             this.finalDisplayItems.put(slot, menuItem);
         }
-//        try {
-//            baseBukkitInventory.getViewers().forEach(humanEntity -> humanEntity.getOpenInventory().setTitle(getFormattedTitle()))
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        } // TODO add when appropriate
     }
 
     private int getMaxPages() { // zero-indexed
         return ((int) Math.ceil((double) paginatedItems.size() / allowedSlots.length)) - 1;
+    }
+
+    public int getCurrentPageNumber() {
+        return currentPageNumber;
     }
 
     private List<MenuItem> getItemsForPage(int page) {
