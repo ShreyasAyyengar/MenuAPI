@@ -57,7 +57,7 @@ public class StandardMenu extends Menu<StandardMenu> {
      * @param item The MenuItem to add.
      * @return the StandardMenu instance.
      */
-    public StandardMenu withItem(int slot, MenuItem item) {
+    public StandardMenu setItem(int slot, MenuItem item) {
         if (slot == -1) return this; // likely passed through from getNextEmptySlot which returned -1;
 
         // if slot already contains item, replace it:
@@ -76,7 +76,7 @@ public class StandardMenu extends Menu<StandardMenu> {
      * @param items The map of items to add to the menu.
      * @return the StandardMenu instance.
      */
-    public StandardMenu withItems(Map<Integer, MenuItem> items) {
+    public StandardMenu setItems(Map<Integer, MenuItem> items) {
         this.items.putAll(items);
         this.items.forEach((itemSlot, itemMenuItem) -> bukkitInventory.setItem(itemSlot, itemMenuItem.getItemStack()));
         return this;

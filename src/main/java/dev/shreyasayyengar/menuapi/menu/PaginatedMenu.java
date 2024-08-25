@@ -108,7 +108,7 @@ public class PaginatedMenu extends Menu<PaginatedMenu> {
      *
      * @param topLeft     The top-left slot of the area.
      * @param bottomRight The bottom-right slot of the area.
-     * @return The PaginatedMenu instance for chaining.
+     * @return The PaginatedMenu instance.
      */
     public PaginatedMenu setAllowedSlots(int topLeft, int bottomRight) {
         // calculate rows and columns for slots
@@ -132,6 +132,24 @@ public class PaginatedMenu extends Menu<PaginatedMenu> {
         }
 
         this.allowedSlots = slots;
+        return this;
+    }
+
+    /**
+     * Sets the range of slots that can be filled with items, allowing for a more specific layout.
+     * This does not take any rectangular shape, and instead fills all slots from startSlot to endSlot.
+     *
+     * @param startSlot The starting slot.
+     * @param endSlot   The ending slot.
+     * @return The PaginatedMenu instance.
+     */
+    public PaginatedMenu setAllowedSlotsRange(int startSlot, int endSlot) {
+        Preconditions.checkArgument(startSlot >= 0 && endSlot < this.size, "Start and endSlot must be within the bounds of the inventory size");
+        Preconditions.checkArgument(startSlot < endSlot, "Start must be less than endSlot");
+        this.allowedSlots = new int[endSlot - startSlot + 1];
+        for (int i = startSlot; i <= endSlot; i++) {
+            this.allowedSlots[i - startSlot] = i;
+        }
         return this;
     }
 
@@ -222,7 +240,7 @@ public class PaginatedMenu extends Menu<PaginatedMenu> {
      * {current_page} and {total_pages} for replacement.</b>
      *
      * @param pageIndicator The string to add to the title.
-     * @return The PaginatedMenu instance for chaining.
+     * @return The PaginatedMenu instance.
      * @apiNote This method is internal due to Bukkit's InventoryView#setTitle being added in version 1.20+.
      */
     @ApiStatus.Internal
@@ -239,7 +257,7 @@ public class PaginatedMenu extends Menu<PaginatedMenu> {
      * Sets the action to perform when the menu is closed.
      *
      * @param closeAction The action to perform.
-     * @return The PaginatedMenu instance for chaining.
+     * @return The PaginatedMenu instance.
      */
     public PaginatedMenu onClose(PaginatedMenuCloseAction closeAction) {
         this.closeAction = closeAction;
@@ -248,21 +266,21 @@ public class PaginatedMenu extends Menu<PaginatedMenu> {
 
 
     public void open(Player player, int pageNumber) {
-        // TODO investigate why this couldn't be done through static fields?
         if (previousPageItem == null) {
             setPreviousPageItem(this.previousPageSlot, new MenuItem(Material.PLAYER_HEAD)
-                    .setName(ChatColor.YELLOW + "Next Page")
+                    .setName(ChatColor.YELLOW + "Previous Page")
                     .setSkullTexture("81c96a5c3d13c3199183e1bc7f086f54ca2a6527126303ac8e25d63e16b64ccf")
                     .onClick((whoClicked, itemStack, clickType, event) -> whoClicked.playSound(whoClicked.getLocation(), Sound.UI_BUTTON_CLICK, 1.0F, 1.0F))
             );
         }
         if (nextPageItem == null) {
             setNextPageItem(this.nextPageSlot, new MenuItem(Material.PLAYER_HEAD)
-                    .setName(ChatColor.YELLOW + "Previous Page")
+                    .setName(ChatColor.YELLOW + "Next Page")
                     .setSkullTexture("333ae8de7ed079e38d2c82dd42b74cfcbd94b3480348dbb5ecd93da8b81015e3")
                     .onClick((whoClicked, itemStack, clickType, event) -> whoClicked.playSound(whoClicked.getLocation(), Sound.UI_BUTTON_CLICK, 1.0F, 1.0F))
             );
         }
+
         Preconditions.checkState(this.previousPageSlot >= 0, "Previous page slot must be a valid slot in the inventory");
         Preconditions.checkState(this.nextPageSlot >= 0, "Next page slot must be a valid slot in the inventory");
         Preconditions.checkState(this.allowedSlots != null, "Allowed slots cannot be null. Please set them using PaginatedMenu#setAllowedSlots(int, int) or PaginatedMenu#setExplicitAllowedSlots(int...)");
