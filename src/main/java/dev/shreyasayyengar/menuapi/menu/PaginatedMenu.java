@@ -70,6 +70,9 @@ public class PaginatedMenu extends Menu<PaginatedMenu> {
     /**
      * Adds a fixed item to the menu. A fixed item remains in the same slot across all pages.
      * Useful for items close buttons, or general static buttons.
+     * <p>
+     * <b>Important: Fixed items always have priority</b> over paginated items. If a fixed item is placed in a slot that is also
+     * occupied by a paginated item, that slot will be removed from the allowed paginated slots.
      *
      * @param slot The slot to place the item.
      * @param item The MenuItem to place in the slot.
@@ -283,8 +286,8 @@ public class PaginatedMenu extends Menu<PaginatedMenu> {
 
         Preconditions.checkState(this.previousPageSlot >= 0, "Previous page slot must be a valid slot in the inventory");
         Preconditions.checkState(this.nextPageSlot >= 0, "Next page slot must be a valid slot in the inventory");
-        Preconditions.checkState(this.allowedSlots != null, "Allowed slots cannot be null. Please set them using PaginatedMenu#setAllowedSlots(int, int) or PaginatedMenu#setExplicitAllowedSlots(int...)");
-        Preconditions.checkState(this.allowedSlots.length != 0, "Allowed slots cannot be empty. Please set them using PaginatedMenu#setAllowedSlots(int, int) or PaginatedMenu#setExplicitAllowedSlots(int...)");
+        Preconditions.checkState(this.allowedSlots != null, "Allowed slots cannot be null. Please set them using setAllowedSlots, setAllowedSlotsRange, or setExplicitAllowedSlots");
+        Preconditions.checkState(this.allowedSlots.length != 0, "Allowed slots cannot be empty. Please set them using setAllowedSlots, setAllowedSlotsRange, or setExplicitAllowedSlots");
 
         // Previous Page Item
         MenuItemClickAction previousPageOriginalClickAction = this.previousPageItem.getClickAction();
@@ -335,34 +338,27 @@ public class PaginatedMenu extends Menu<PaginatedMenu> {
         baseBukkitInventory.clear();
 
         updateFixedItems();
+        this.fixedItems.keySet().forEach(fixedSlot -> {
+            this.allowedSlots = Arrays.stream(this.allowedSlots)
+                    .filter(s -> s != fixedSlot)
+                    .toArray();
+        });
         updatePaginatedItems();
 
-        this.finalDisplayItems.forEach((integer, menuItem) -> baseBukkitInventory.setItem(integer, menuItem.getItemStack()));
+        this.finalDisplayItems.forEach((integer, menuItem) -> baseBukkitInventory.setItem(integer, (menuItem == null) ? null : menuItem.getItemStack()));
     }
 
     private void updateFixedItems() {
-        if (currentPageNumber == 0) {
-            this.fixedItems.remove(this.previousPageSlot);
-        } else {
-            this.fixedItems.put(this.previousPageSlot, this.previousPageItem);
-        }
-
-        if (currentPageNumber == getMaxPages()) {
-            this.fixedItems.remove(this.nextPageSlot);
-        } else {
-            this.fixedItems.put(this.nextPageSlot, this.nextPageItem);
-        }
-
+        this.fixedItems.put(this.previousPageSlot, currentPageNumber == 0 ? null : this.previousPageItem);
+        this.fixedItems.put(this.nextPageSlot, currentPageNumber == getMaxPages() ? null : this.nextPageItem);
         this.finalDisplayItems.putAll(this.fixedItems);
     }
 
     private void updatePaginatedItems() {
         List<MenuItem> itemsOnPage = getItemsForPage(currentPageNumber);
 
-        // apply paginated items for the current page
         for (int i = 0; i < itemsOnPage.size(); i++) {
             MenuItem menuItem = itemsOnPage.get(i);
-            // Get the corresponding slot from the allowed slots array
             int slot = this.allowedSlots[i];
 
             // Set the item in the inventory
