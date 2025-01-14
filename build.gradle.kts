@@ -53,9 +53,6 @@ tasks {
         minimize {
             exclude(dependency("org.jetbrains.kotlin:kotlin-reflect"))
         }
-
-        destinationDirectory.set(file("/Users/shreyassrinivasayyengar/Desktop/Test Server/plugins"))
-        archiveFileName.set("MenuAPI.jar")
     }
 
     compileJava {
