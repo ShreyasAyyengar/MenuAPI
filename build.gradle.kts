@@ -28,6 +28,23 @@ dependencies {
     implementation("gg.flyte:twilight:1.+")
 }
 
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+
+            // Shadow Jar
+            artifact(tasks.shadowJar.get()) {
+                classifier = null // Removes the "-shadow" classifier
+            }
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
+}
+
 tasks {
     build { dependsOn(shadowJar) }
     assemble { dependsOn(reobfJar) }
@@ -36,6 +53,9 @@ tasks {
         minimize {
             exclude(dependency("org.jetbrains.kotlin:kotlin-reflect"))
         }
+
+        destinationDirectory.set(file("/Users/shreyassrinivasayyengar/Desktop/Test Server/plugins"))
+        archiveFileName.set("MenuAPI.jar")
     }
 
     compileJava {
