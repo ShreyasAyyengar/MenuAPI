@@ -52,3 +52,9 @@ tasks {
     javadoc { options.encoding = Charsets.UTF_8.name() }
     processResources { filteringCharset = Charsets.UTF_8.name() }
 }
+
+kotlin {
+    compilerOptions { javaParameters = true } // Lamp CMD Framework
+}
+
+application { mainClass.set("MenuPluginTestKt") }
