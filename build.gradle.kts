@@ -25,18 +25,15 @@ dependencies {
 
     paperweight.paperDevBundle("1.21.3-R0.1-SNAPSHOT")
 
-    implementation("gg.flyte:twilight:1.+")
+    implementation("gg.flyte:twilight:1.1.17")
 }
 
 
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
-            from(components["java"])
-
-            // Shadow Jar
             artifact(tasks.shadowJar.get()) {
-                classifier = null // Removes the "-shadow" classifier
+                classifier = null // Publish the shadow JAR without a classifier
             }
         }
     }
@@ -50,6 +47,8 @@ tasks {
     assemble { dependsOn(reobfJar) }
 
     shadowJar {
+        archiveClassifier.set("shadow") // Sets the classifier for the shadow JAR
+
         minimize {
             exclude(dependency("org.jetbrains.kotlin:kotlin-reflect"))
         }
