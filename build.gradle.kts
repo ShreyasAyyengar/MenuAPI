@@ -5,6 +5,7 @@ plugins {
     kotlin("jvm") version "2.1.20-Beta1"
     id("com.gradleup.shadow") version "latest.release"
     id("io.papermc.paperweight.userdev") version "latest.release"
+    id("maven-publish")
 }
 
 group = "dev.shreyasayyengar"
