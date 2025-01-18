@@ -30,7 +30,7 @@ import kotlin.math.min
 class PaginatedMenu(
     title: Component,
     size: Int,
-) : Menu(title, size) {
+) : Menu<PaginatedMenu>(title, size) {
     private var fixedItems: MutableMap<Int, MenuItem> = mutableMapOf()
     private var paginatedItems: MutableList<MenuItem> = mutableListOf()
     private var closeAction: CloseAction? = null

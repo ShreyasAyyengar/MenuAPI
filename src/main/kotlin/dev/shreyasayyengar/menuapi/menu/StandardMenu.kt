@@ -17,7 +17,7 @@ import java.util.*
 class StandardMenu(
     title: Component,
     size: Int,
-) : Menu(title, size) {
+) : Menu<StandardMenu>(title, size) {
     private var closeAction: CloseAction? = null
     private val items: MutableMap<Int, MenuItem> = mutableMapOf()
     private val bukkitInventory: Inventory = Bukkit.createInventory(null, size, title)

@@ -12,7 +12,7 @@ import java.util.*
  * @param title The title of the menu.
  * @param size The size of the menu.
  */
-abstract class Menu(
+abstract class Menu<T : Menu<T>>(
     var title: Component = Component.empty(),
     var size: Int = 54,
 ) : Iterable<ItemStack> {
@@ -45,8 +45,10 @@ abstract class Menu(
      * To prevent players from mutating the Bukkit Inventory directly, the instance of [InventoryClickEvent] fired
      * when a player clicks on a MenuItem is cancelled by default.
      */
-    fun cancelClickEventsByDefault(cancelClickEventsByDefault: Boolean) = apply {
+    @Suppress("UNCHECKED_CAST")
+    fun cancelClickEventsByDefault(cancelClickEventsByDefault: Boolean): T {
         this.cancelClickEventsByDefault = cancelClickEventsByDefault
+        return this as T
     }
 
     /**
@@ -60,9 +62,11 @@ abstract class Menu(
      * @param overriddenInventoryClickAction The action to perform when [InventoryClickEvent] is fired. (**Note**:
      * the inventory could be the player's bottom inventory, not the top menu inventory).
      */
-    fun overrideClickAction(handleMenuItems: Boolean, overriddenInventoryClickAction: OverriddenInventoryClickAction) = apply {
+    @Suppress("UNCHECKED_CAST")
+    fun overrideClickAction(handleMenuItems: Boolean, overriddenInventoryClickAction: OverriddenInventoryClickAction): T {
         overriddenClickAction = overriddenInventoryClickAction
         handleMenuItemAction = handleMenuItems
+        return this as T
     }
 
     @FunctionalInterface
