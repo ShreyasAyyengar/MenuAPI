@@ -8,10 +8,11 @@ import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.plugin.java.JavaPlugin
+import java.awt.SystemColor.menu
 import java.util.*
 
 class MenuAPI private constructor(providingPlugin: JavaPlugin) : Listener {
-    val openMenus = mutableMapOf<UUID, Menu>()
+    val openMenus = mutableMapOf<UUID, Menu<*>>()
 
     init {
         twilight(providingPlugin)
@@ -38,7 +39,7 @@ class MenuAPI private constructor(providingPlugin: JavaPlugin) : Listener {
         }
     }
 
-    private fun handleClick(event: InventoryClickEvent, player: Player, menu: Menu) {
+    private fun handleClick(event: InventoryClickEvent, player: Player, menu: Menu<*>) {
         menu.getItem(event.rawSlot).ifPresent { menuItem ->
             if (menuItem.getClickAction() != null) {
                 menuItem.getClickAction()!!.onClick(player, menuItem.itemStack(), event.click, event)
