@@ -84,7 +84,7 @@ class MenuItem(
         require(item.type == Material.PLAYER_HEAD) { "ItemStack Material must be PLAYER_HEAD to set a skull texture." }
         val skullProfile = Bukkit.createPlayerProfile(UUID.randomUUID())
         val profileTextures = skullProfile.textures
-        profileTextures.skin = URI("http://textures.minecraft.net/texture/$textureURL").toURL()
+        profileTextures.skin = URI(textureURL).toURL()
         skullProfile.setTextures(profileTextures)
 
         val skullMeta = meta as SkullMeta

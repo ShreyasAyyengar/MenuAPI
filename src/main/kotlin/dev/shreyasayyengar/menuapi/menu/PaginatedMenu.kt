@@ -36,11 +36,11 @@ class PaginatedMenu(
     private var closeAction: CloseAction? = null
     private var previousPageItem: MenuItem = MenuItem(Material.PLAYER_HEAD)
         .name(Component.text("Previous Page", NamedTextColor.YELLOW))
-        .skullTexture("81c96a5c3d13c3199183e1bc7f086f54ca2a6527126303ac8e25d63e16b64ccf")
+        .skullTexture("http://textures.minecraft.net/texture/81c96a5c3d13c3199183e1bc7f086f54ca2a6527126303ac8e25d63e16b64ccf")
         .onClick { whoClicked, itemStack, clickType, event -> whoClicked.playSound(whoClicked.location, Sound.UI_BUTTON_CLICK, 1.0F, 1.0F) }
     private var nextPageItem: MenuItem = MenuItem(Material.PLAYER_HEAD)
         .name(Component.text("Next Page", NamedTextColor.YELLOW))
-        .skullTexture("333ae8de7ed079e38d2c82dd42b74cfcbd94b3480348dbb5ecd93da8b81015e3")
+        .skullTexture("http://textures.minecraft.net/texture/333ae8de7ed079e38d2c82dd42b74cfcbd94b3480348dbb5ecd93da8b81015e3")
         .onClick { whoClicked, itemStack, clickType, event -> whoClicked.playSound(whoClicked.location, Sound.UI_BUTTON_CLICK, 1.0F, 1.0F) }
     private var previousPageSlot: Int = -1
     private var nextPageSlot: Int = -1
