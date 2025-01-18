@@ -8,7 +8,6 @@ import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.plugin.java.JavaPlugin
-import java.awt.SystemColor.menu
 import java.util.*
 
 class MenuAPI private constructor(providingPlugin: JavaPlugin) : Listener {
