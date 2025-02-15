@@ -45,7 +45,7 @@ class PaginatedMenu(
     private var previousPageSlot: Int = -1
     private var nextPageSlot: Int = -1
     private var allowedSlots: IntArray? = null
-    private var currentPage: Int = 0
+    var currentPage: Int = 0
     private var noAdditionalPages: Component = Component.text("There are no additional pages to view", NamedTextColor.RED)
     private var noPreviousPages: Component = Component.text("There are no previous pages to view", NamedTextColor.RED)
     private var tempFinalItems: MutableMap<Int, MenuItem> = mutableMapOf()
