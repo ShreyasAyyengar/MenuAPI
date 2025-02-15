@@ -287,10 +287,6 @@ class PaginatedMenu(
     }
 
     private fun prepareSpecificPage(player: Player, pageNumber: Int) {
-        println("requested page: $pageNumber")
-        println("max pages: ${maxPages()}")
-        println("current page: $currentPage")
-        println("-------")
         if (pageNumber < 0 || pageNumber > maxPages()) {
             player.sendMessage(if (pageNumber < 0) noPreviousPages else noAdditionalPages)
             return
