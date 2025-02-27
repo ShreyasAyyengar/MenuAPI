@@ -117,6 +117,13 @@ class PaginatedMenu(
     fun addPaginatedItems(items: Collection<MenuItem>) = apply { this.paginatedItems.addAll(items) }
 
     /**
+     * Clears all paginated items from the menu.
+     *
+     * @return This [PaginatedMenu] instance.
+     */
+    fun clearPaginatedItems() = apply { this.paginatedItems.clear() }
+
+    /**
      * Sets the slots that can be filled with paginated items, defining a rectangular area within the menu.
      * Useful for creating borders or specific layouts.
      *
