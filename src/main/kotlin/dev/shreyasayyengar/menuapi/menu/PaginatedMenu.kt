@@ -51,6 +51,24 @@ class PaginatedMenu(
     private var tempFinalItems: MutableMap<Int, MenuItem> = mutableMapOf()
     private val bukkitInventory: Inventory = Bukkit.createInventory(null, size, title)
 
+    init {
+        val previousPageOriginalAction = this.previousPageItem.getClickAction()
+        this.previousPageItem.onClick { whoClicked, itemStack, clickType, event ->
+            previousPageOriginalAction?.onClick(whoClicked, itemStack, clickType, event) // run cosmetic turn-page actions
+            prepareSpecificPage(whoClicked, this.currentPage - 1)
+        }
+        this.previousPageItem.closeWhenClicked(false)
+
+        val nextPageOriginalAction = this.nextPageItem.getClickAction()
+        this.nextPageItem.onClick { whoClicked, itemStack, clickType, event ->
+            nextPageOriginalAction?.onClick(whoClicked, itemStack, clickType, event) // run cosmetic turn-page actions
+            prepareSpecificPage(whoClicked, this.currentPage + 1)
+        }
+        this.nextPageItem.closeWhenClicked(false)
+    }
+    
+    
+
     override fun handleClose(event: InventoryCloseEvent) {
         this.closeAction?.performCloseAction(event.player as Player, event.inventory, currentPage, event)
     }
@@ -271,23 +289,7 @@ class PaginatedMenu(
         require(previousPageSlot !in (allowedSlots ?: IntArray(0))) { "Previous page slot cannot be in the paginating slots" }
         require(nextPageSlot !in (allowedSlots ?: IntArray(0))) { "Next page slot cannot be in the paginating slots" }
         require(fixedItems.keys.intersect(allowedSlots?.toList() ?: emptyList()).isEmpty()) { "Fixed slots cannot overlap with paginating slots" }
-
-        val previousPageOriginalAction = this.previousPageItem.getClickAction()
-        this.previousPageItem.onClick { whoClicked, itemStack, clickType, event ->
-            previousPageOriginalAction?.onClick(whoClicked, itemStack, clickType, event) // run cosmetic actions
-
-            prepareSpecificPage(whoClicked, this.currentPage - 1)
-        }
-        this.previousPageItem.closeWhenClicked(false) // override, menu cannot close when paginating
-
-        val nextPageOriginalAction = this.nextPageItem.getClickAction()
-        this.nextPageItem.onClick { whoClicked, itemStack, clickType, event ->
-            nextPageOriginalAction?.onClick(whoClicked, itemStack, clickType, event) // run cosmetic actions
-
-            prepareSpecificPage(whoClicked, this.currentPage + 1)
-        }
-        this.nextPageItem.closeWhenClicked(false) // override, menu cannot close when paginating
-
+        
         prepareSpecificPage(player, pageNumber)
         player.openInventory(bukkitInventory)
         MenuAPI.getInstance().openMenus[player.uniqueId] = this
